@@ -1,9 +1,9 @@
 module.exports = {
 	//devtool: 'eval-source-map',
 	devtool: 'inline-source-map',
-	entry: __dirname + "/app.js",
+	entry: __dirname + "/js/app.js",
 	output: {
-		path: __dirname + "/build",
+		path: __dirname,
 		filename: "bundle.js"
 	},
 
