@@ -29,7 +29,6 @@ let PollSection = React.createClass({
 
 	render: function(){
 		let polls = [];
-		debugger
 		for( let pollId in this.state.allPolls){
 		  	polls.push(
 		  		<li key={pollId}>

@@ -6,7 +6,6 @@ var ActionTypes = PollConstants.ActionTypes;
 module.exports = {
 
   receiveAll: function(rawPolls) {
-    debugger
     PollAppDispatcher.dispatch({
       type: ActionTypes.RECEIVE_RAW_POLLS,
       rawPolls: rawPolls

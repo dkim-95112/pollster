@@ -67,7 +67,6 @@ var _polls = {};
 function _addPolls(rawPolls) {
   rawPolls.forEach(function(poll) {
     if (!_polls[poll.id]) {
-      debugger
       _polls[poll.id] = PollUtils.convertRawPoll(
         poll
       );
@@ -112,7 +111,6 @@ AppDispatcher.register(function(action) {
   switch(action.type) {
 
     case ActionTypes.RECEIVE_RAW_POLLS:
-      debugger
       _addPolls(action.rawPolls);
       //ChatAppDispatcher.waitFor([ThreadStore.dispatchToken]);
       //_markAllInThreadRead(ThreadStore.getCurrentID());
@@ -121,20 +119,14 @@ AppDispatcher.register(function(action) {
 
     case ActionTypes.TALLY_POLL:
       debugger
+      _polls[action.pollId].choices[action.choiceId].count++;
+      PollStore.emitChange();
       break;
 
     // case TodoConstants.POLL_CREATE:
     //   text = action.text.trim();
     //   if (text !== '') {
     //     create(text);
-    //     TodoStore.emitChange();
-    //   }
-    //   break;
-
-    // case TodoConstants.POLL_UPDATE_TEXT:
-    //   text = action.text.trim();
-    //   if (text !== '') {
-    //     update(action.id, {text: text});
     //     TodoStore.emitChange();
     //   }
     //   break;

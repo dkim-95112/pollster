@@ -1,20 +1,22 @@
 let PollAppDispatcher = require('../dispatcher/PollAppDispatcher');
 let PollConstants = require('../PollConstants');
-// var ChatWebAPIUtils = require('../utils/ChatWebAPIUtils');
-// var ChatMessageUtils = require('../utils/ChatMessageUtils');
+var PollWebAPIUtils = require('../PollWebAPIUtils');
+var PollUtils = require('../PollUtils');
 
 let ActionTypes = PollConstants.ActionTypes;
 
 module.exports = {
 
-  tallyPoll: function(choiceId, pollId){
-    debugger
+  tallyPoll: function(pollId, choiceId){
     PollAppDispatcher.dispatch({
       type: ActionTypes.TALLY_POLL,
       choiceId: choiceId,
       pollId: pollId
     })
     // todo: send poll to server here
+    PollWebAPIUtils.tallyPoll(
+      PollUtils.getPollData(pollId, choiceId)
+    );
   }
 
   // createMessage: function(text, currentThreadID) {

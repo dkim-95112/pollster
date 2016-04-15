@@ -3,7 +3,7 @@ var keyMirror = require('keymirror');
 module.exports = {
 
   ActionTypes: keyMirror({
-  	TALLY_VOTE: null,
+  	TALLY_POLL: null,
   	RECEIVE_RAW_POLLS: null
     //CLICK_THREAD: null,
     // CREATE_MESSAGE: null,

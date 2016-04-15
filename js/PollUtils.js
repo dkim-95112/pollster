@@ -1,14 +1,19 @@
 module.exports = {
 
   convertRawPoll: function(rawPoll) {
-    return {
+    return { // doesn't do anything now ?
       id: rawPoll.id,
       text: rawPoll.text,
       choices: rawPoll.choices
     };
+  },
+  getPollData: function(pollId, choiceId){
+    return {
+      pollId: pollId,
+      choiceId: choiceId
+    };
   }
-  // ,
-
+  
   // getCreatedMessageData: function(text, currentThreadID) {
   //   var timestamp = Date.now();
   //   return {
