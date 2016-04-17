@@ -13,10 +13,19 @@ module.exports = {
       choiceId: choiceId,
       pollId: pollId
     })
-    // todo: send poll to server here
-    PollWebAPIUtils.tallyPoll(
+    
+    PollWebAPIUtils.tallyPoll(// todo: send poll to server here
       PollUtils.getPollData(pollId, choiceId)
     );
+  },
+
+  createPoll: function(pollInput){
+    PollAppDispatcher.dispatch({
+      type: ActionTypes.CREATE_POLL,
+      pollInput: pollInput
+    })
+
+    //todo: send new poll to server here
   }
 
   // createMessage: function(text, currentThreadID) {

@@ -1,5 +1,6 @@
 let PollStore = require('../stores/PollStore');
 let Poll = require('./Poll.react');
+let PollInput = require('./PollInput.react');
 let React = require('react');
 
 function getStateFromStores(){
@@ -36,7 +37,12 @@ let PollSection = React.createClass({
 				</li>
 			)
 		}
-		return <ul>{polls}</ul>;
+		return (
+			<div>
+				<PollInput />
+				<ul>{polls}</ul>
+			</div>
+		);
 	}
 })
 

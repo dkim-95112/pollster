@@ -12,17 +12,16 @@ var _polls = {};
  * Create a POLL item.
  * @param  {string} text The content of the POLL
  */
-// function create(text) {
-//   // Hand waving here -- not showing how this interacts with XHR or persistent
-//   // server-side storage.
-//   // Using the current timestamp + random number in place of a real id.
-//   var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
-//   _polls[id] = {
-//     id: id,
-//     complete: false,
-//     text: text
-//   };
-// }
+function create(pollInput) {
+  // Hand waving here -- not showing how this interacts with XHR or persistent
+  // server-side storage.
+  // Using the current timestamp + random number in place of a real id.
+  var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+  _polls[id] = {
+    text: pollInput.text,
+    choices: pollInput.choices
+  };
+}
 
 /**
  * Update a POLL item.
@@ -123,13 +122,11 @@ AppDispatcher.register(function(action) {
       PollStore.emitChange();
       break;
 
-    // case TodoConstants.POLL_CREATE:
-    //   text = action.text.trim();
-    //   if (text !== '') {
-    //     create(text);
-    //     TodoStore.emitChange();
-    //   }
-    //   break;
+    case ActionTypes.CREATE_POLL:
+      debugger
+      create(action.pollInput);
+      PollStore.emitChange();
+      break;
 
     // case TodoConstants.POLL_DESTROY:
     //   destroy(action.id);
