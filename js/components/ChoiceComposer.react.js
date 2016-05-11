@@ -1,4 +1,4 @@
-let PollActionCreator = require('../actions/PollActionCreator');
+//let PollActionCreator = require('../actions/PollActionCreator');
 let React = require('react')
 //var ReactPropTypes = React.PropTypes; // todo
 

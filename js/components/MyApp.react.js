@@ -1,7 +1,7 @@
-let PollSection = require('./PollSection.react');
-let React = require('react');
+const PollSection = require('./PollSection.react');
+const React = require('react');
 
-let MyApp = React.createClass({
+const MyApp = React.createClass({
 	render: function(){
 		return <PollSection />;
 	}

@@ -1,4 +1,4 @@
-let PollActionCreator = require('../actions/PollActionCreator');
+//let PollActionCreator = require('../actions/PollActionCreator');
 let ChoiceComposer = require('./ChoiceComposer.react');
 let React = require('react')
 
@@ -40,7 +40,7 @@ var PollInput = React.createClass({
 			
 				<button
 				disabled={!(this.state.text && this.state.choices.length > 1)}
-				onClick={this._createPoll}>
+				onClick={this._onClick}>
 				Submit
 				</button>
 			</fieldset>
@@ -65,10 +65,11 @@ var PollInput = React.createClass({
 			choices: (this.state.choices.splice(choiceId, 1), this.state.choices)
 		})
 	},
-	_createPoll: function(event) {
+	_onClick: function(event) {
 		debugger
-//		event.preventDefault();  // avoid page reloading
-		PollActionCreator.createPoll(this.state);
+		//event.preventDefault();  // avoid page reloading
+		this.props.fnAdd(this.state);
+		this.setState(this.getInitialState);
 	},
 	_onChange: function(event){
 		debugger
