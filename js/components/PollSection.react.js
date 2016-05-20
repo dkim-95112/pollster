@@ -45,29 +45,19 @@ var PollSection = React.createClass({
 	},
 	render: function() {
 		debugger
-		// var polls = [];
-		// for( var pollId in this.state.polls){
-		// 	debugger
-		//   	polls.push(
-		//   		<li key={pollId}>
-		// 			<Poll id={pollId} poll={this.state.allPolls[pollId]} />
-		// 		</li>
-		// 	)
-		// }
-		return ( < div >
-			< PollInput fnAdd={this.fnAdd} / >
-			< ul > {
-				this.state.polls.map(function(poll, i) {
-					debugger
-					return ( < li key = {i} >
-						<Poll fnTally = {this.fnTally}
-						fnDelete={this.fnDelete}
-						poll = {poll}/>
-						</li>
-					);
-				}.bind(this))
-			} < /ul> < /div>
-		);
+		const polls = this.state.polls.map(function(poll) {
+			return <Poll
+				key={poll.$id}
+				fnTally = {this.fnTally}
+				fnDelete={this.fnDelete}
+				poll = {poll}
+			/>
+		}.bind(this));
+
+		return <div>
+			< PollInput fnAdd={this.fnAdd} />
+			<ul>{polls}</ul>
+		</div>
 	}
 })
 

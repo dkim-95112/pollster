@@ -1,9 +1,11 @@
 //let PollActionCreator = require('../actions/PollActionCreator');
-let ChoiceComposer = require('./ChoiceComposer.react');
-let React = require('react')
+const ChoiceComposer = require('./ChoiceComposer.react');
+const PollStore = require('../stores/PollStore');
+const React = require('react')
 
 var ChoiceListItem = React.createClass({
 	render: function(){
+		debugger
 		return (
 			<li choiceId={this.props.choiceId}>
 				{this.props.choice.text}
@@ -16,7 +18,10 @@ var ChoiceListItem = React.createClass({
 
 var PollInput = React.createClass({
 	getInitialState: function(){
-		return {text: '', choices: []};
+		return {
+			text: '',
+			choices: []
+		};
 	},
 	render: function(){
 		return (
@@ -28,14 +33,17 @@ var PollInput = React.createClass({
 				</legend>
 				<ChoiceComposer fnCreate={this._createChoiceItem}/>
 				<ol>
-					{this.state.choices.map(function(choice, i){
+					{
+						this.state.choices.map(function(choice, i){
+						debugger
 						return <ChoiceListItem 
 							key={i} choiceId={i} 
 							choice={choice}
 							fnEdit={this._editChoiceItem}
 							fnDelete={this._deleteChoiceItem.bind(this, i)}
 							/>
-					}.bind(this))}
+						}.bind(this))
+					}
 				</ol>
 			
 				<button
@@ -48,11 +56,12 @@ var PollInput = React.createClass({
 	},
 	_createChoiceItem: function(choiceText){
 		debugger
-		if(choiceText){
+		if (choiceText) {
+			this.state.choices.push({
+				text: choiceText
+			})
 			this.setState({
-				choices: this.state.choices.concat([{
-					text: choiceText, count: 0
-				}])
+				choices: this.state.choices
 			});
 		}
 	},
@@ -72,7 +81,6 @@ var PollInput = React.createClass({
 		this.setState(this.getInitialState);
 	},
 	_onChange: function(event){
-		debugger
 		this.setState({text: event.target.value});
 	}
 });

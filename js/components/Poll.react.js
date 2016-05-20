@@ -1,64 +1,63 @@
 //const PollActionCreator = require('../actions/PollActionCreator');
+const PollStore = require('../stores/PollStore');
 const React = require('react');
 
 const ChoiceListItem = React.createClass({
 	render: function(){
-		var choice = this.props.choice;
-		let id = this.props.choiceId;
-		let total = this.props.total;
+		const choice = this.props.choice;
+		const total = this.props.total;
+		const choiceId = this.props.choiceId;
 		debugger
-		return (
-			<li>
-				<input id={id} value={id} name="choice" type="radio"/>
-				<label htmlFor={id}>
-					{choice.text}
-					{' - '}<span>{choice.count}</span>
-					{total && (' - ' + Math.round((choice.count*100)/total) + '%')}
-				</label>
-			</li>
-		);
+		return <li>
+			<input id={choiceId} name="choice" type="radio" value={choiceId}/>
+			<label htmlFor={choiceId}>
+				{choice.text}
+				{' - '}<span>{choice.clickCount}</span>
+				<span style={{display: total ? '': 'none'}}>
+					- {Math.round((choice.clickCount*100)/total)}%
+				</span>
+			</label>
+		</li>
 	}
 })
 
 var Poll = React.createClass({
 	getInitialState: function(){
-		return {choiceId: null};
+		return {
+			choiceId: null
+		};
 	},
 	render: function(){
-		var poll = this.props.poll;
-		var pollId = poll.$id;
-		var total = Object.keys(poll.choices)
-			.map(function(v){
-				return poll.choices[v].count;
-			})
-			.reduce((prev,cur)=> prev + cur);
-
 		debugger
-		return (
-			<form name={pollId}>
-				<div>{poll.text}</div>
-				<ol onChange={this._onChange}>
-					{Object.keys(poll.choices).map(function(v){
-						var choice = poll.choices[v];
-						return <ChoiceListItem key={v}
-							pollId={pollId}
-							choiceId ={v}
-							choice={choice}
-							total={total}
-							/>
-					}.bind(this))}
-				</ol>
-				<button
-					disabled={!this.state.choiceId}
-					onClick={this._onClick}	>Tally
-				</button>
-				<button onClick={this._onDelete}>
-				  Delete
-				</button>
-			</form>
+		const poll = this.props.poll;
+		let total = 0;
+		Object.keys(poll.choices).forEach(k =>{
+			total += poll.choices[k].clickCount;
+		})
+		const choices = Object.keys(poll.choices).map(k =>
+			<ChoiceListItem
+				key={k}
+				choiceId={k}
+				choice={poll.choices[k]}
+				total={total}
+			/>
 		);
+
+		return <li>
+			<div>{poll.text} - total {total}</div>
+			<ol onChange={this._onChange}>
+				{choices}
+			</ol>
+			<button
+				disabled={!this.state.choiceId}
+				onClick={this._onTally}	>Tally
+			</button>
+			<button onClick={this._onDelete}>
+			  Delete
+			</button>
+		</li>
 	},
-	_onClick: function(event) {
+	_onTally: function(event) {
 		debugger
 		event.preventDefault();  // avoid page reloading
 		this.props.fnTally(this.props.poll.$id, this.state.choiceId);

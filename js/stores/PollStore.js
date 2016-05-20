@@ -1,41 +1,83 @@
-var EventEmitter = require('events').EventEmitter;
-var AppDispatcher = require('../dispatcher/PollAppDispatcher');
-var ActionTypes = require('../PollConstants').ActionTypes;
-var assign = require('object-assign');
-var Firebase = require('firebase');
+const EventEmitter = require('events').EventEmitter;
+//const AppDispatcher = require('../dispatcher/PollAppDispatcher');
+//const ActionTypes = require('../PollConstants').ActionTypes;
+const assign = require('object-assign');
+const Firebase = require('firebase');
 
 // private within this module
-var CHANGE_EVENT = 'change';
-var _firebaseRef = new Firebase("https://fiery-torch-6903.firebaseio.com/polls/");
-var _polls = [];
+const CHANGE_EVENT = 'change';
 
+// Initialize Firebase
+const config = {
+  apiKey: "AIzaSyDYrAWsVW7uH-mW7LSdxRX2N-vyeCom660",
+  authDomain: "pollster-6aa8d.firebaseapp.com",
+  databaseURL: "https://pollster-6aa8d.firebaseio.com",
+  storageBucket: "pollster-6aa8d.appspot.com",
+};
+const App = firebase.initializeApp(config);
+const _db = App.database();
+//new Firebase("https://fiery-torch-6903.firebaseio.com");
 
-function syncChanges(list, ref) {
+const _polls = [];
+const _clicks = [];
+/*
+polls: {
+  pollId: {
+    text: "what is your favorite color?",
+    clickCount: 123,
+    choices: {
+      choiceId: {
+        text: red,
+        clickCount: 12
+      }
+      choiceId2: ...
+    }
+  },
+  pollId2: ...
+}
+clicks:
+  choiceId: {
+    clickId:{ date: Date.now, uid: [uid]},
+    clickId2: ...
+  }
+*/
+function syncPolls(list, ref) {
   ref.on('child_added', function _add(snap, prevChild) {
-    debugger
     var data = snap.val();
-    data.$id = snap.key(); // assumes data is always an object
     var pos = positionAfter(list, prevChild);
-    list.splice(pos, 0, data);
+    debugger
+    list.splice(pos, 0, {
+      $id: snap.key, // matched to prevChild
+      clickCount: data.clickCount,
+      choices: data.choices,
+      text: data.text
+    });
     PollStore.emitChange();
   });
   ref.on('child_removed', function _remove(snap) {
     debugger
-    var i = positionFor(list, snap.key());
+    var i = positionFor(list, snap.key);
     if (i > -1) {
       list.splice(i, 1);
+    } else {
+      throw "key not found"
     }
     PollStore.emitChange();
   });
   ref.on('child_changed', function _change(snap) {
     debugger
-    var i = positionFor(list, snap.key());
+    var i = positionFor(list, snap.key);
     if (i > -1) {
-      list[i] = snap.val();
-
-      // if $id property didn't exist, we wouldn't be here
-      list[i].$id = snap.key(); // assumes data is always an object
+      const data = snap.val();
+      list[i] = {
+        $id: snap.key,
+        text: data.text,
+        clickCount: data.clickCount,
+        choices: data.choices
+      }
       PollStore.emitChange();
+    } else {
+      throw "key not found";
     }
   });
   ref.on('child_moved', function _move(snap, prevChild) {
@@ -46,6 +88,8 @@ function syncChanges(list, ref) {
       var newPos = positionAfter(list, prevChild);
       list.splice(newPos, 0, data);
       PollStore.emitChange();
+    } else {
+      throw "key not found";
     }
   });
 }
@@ -75,106 +119,69 @@ function positionAfter(list, prevChild) {
   }
 }
 
-function wrapLocalCrudOps(list, firebaseRef) {
-  //   // we can hack directly on the array to provide some convenience methods
-    list.$add = function(data) {
-      return firebaseRef.push(data);
-    };
-    list.$remove = function(key) {
-      firebaseRef.child(key).remove();
-    };
-  list.$set = function(key, newData) {
-    // make sure we don't accidentally push our $id prop
-    if (newData.hasOwnProperty('$id')) {
-      delete newData.$id;
-    }
-    firebaseRef.child(key).set(newData);
-  };
-  //   list.$indexOf = function(key) {
-  //     return positionFor(list, key); // positionFor in examples above
-  //   }
+function syncClicks(list, ref) {
+  ref.on('child_added', function _add(snap, prevChild) {
+    const d = snap.val();
+  });
+  ref.on('child_removed', function _remove(snap) {
+    debugger
+    // var i = positionFor(list, snap.key());
+    // if (i > -1) {
+    //   list.splice(i, 1);
+    // }
+    PollStore.emitChange();
+  });
+  ref.on('child_changed', function _change(snap) {
+    debugger
+    // var i = positionFor(list, snap.key());
+    // if (i > -1) {
+    //   list[i] = snap.val();
+
+    //   // if $id property didn't exist, we wouldn't be here ?
+    //   list[i].$id = snap.key(); // assumes data is always an object
+    //   PollStore.emitChange();
+    // }
+  });
+  ref.on('child_moved', function _move(snap, prevChild) {
+    debugger
+    // var curPos = positionFor(list, snap.key());
+    // if (curPos > -1) {
+    //   var data = list.splice(curPos, 1)[0];
+    //   var newPos = positionAfter(list, prevChild);
+    //   list.splice(newPos, 0, data);
+    //   PollStore.emitChange();
+    // }
+  });
 }
 
-// function getSynchronizedArray(firebaseRef) {
-//   var list = [];
-//   syncChanges(list, firebaseRef);
-//   wrapLocalCrudOps(list, firebaseRef);
-//   return list;
-// }
-
-/**
- * Create a POLL item.
- * @param  {string} text The content of the POLL
- */
-// function create(pollInput) {
-//   // Hand waving here -- not showing how this interacts with XHR or persistent
-//   // server-side storage.
-//   // Using the current timestamp + random number in place of a real id.
-//   var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
-//   _polls[id] = {
-//     text: pollInput.text,
-//     choices: pollInput.choices
+// function wrapLocalCrudOps(list, firebaseRef) {
+//   //   // we can hack directly on the array to provide some convenience methods
+//     list.$add = function(data) {
+//       return firebaseRef.push(data);
+//     };
+//     list.$remove = function(key) {
+//       firebaseRef.child(key).remove();
+//     };
+//   list.$set = function(key, newData) {
+//     // make sure we don't accidentally push our $id prop
+//     if (newData.hasOwnProperty('$id')) {
+//       delete newData.$id;
+//     }
+//     firebaseRef.child(key).set(newData);
+//     newData.$id = key; // so positionFor() can find it
 //   };
+//   //   list.$indexOf = function(key) {
+//   //     return positionFor(list, key); // positionFor in examples above
+//   //   }
 // }
 
-/**
- * Update a POLL item.
- * @param  {string} id
- * @param {object} updates An object literal containing only the data to be
- *     updated.
- */
-// function update(id, updates) {
-//   _polls[id] = assign({}, _polls[id], updates);
-// }
-
-/**
- * Update all of the POLL items with the same object.
- * @param  {object} updates An object literal containing only the data to be
- *     updated.
- */
-// function updateAll(updates) {
-//   for (var id in _polls) {
-//     update(id, updates);
-//   }
-// }
-
-/**
- * Delete a POLL item.
- * @param  {string} id
- */
-// function destroy(id) {
-//   delete _polls[id];
-// }
-
-/**
- * Delete all the completed POLL items.
- */
-// function destroyCompleted() {
-//   for (var id in _polls) {
-//     if (_polls[id].complete) {
-//       destroy(id);
-//     }
-//   }
-// }
-
-// function _addPolls(rawPolls) {
-//   debugger
-//   rawPolls.forEach(function(poll) {
-//     if (!_polls[poll.id]) {
-//       _polls[poll.id] = PollUtils.convertRawPoll(
-//         poll
-//       );
-//     }
-//   });
-// }
-
-
-
-var PollStore = assign({}, EventEmitter.prototype, {
+const PollStore = assign({}, EventEmitter.prototype, {
 
   didMount: function() {
-    syncChanges(_polls, _firebaseRef); // updates
-    wrapLocalCrudOps(_polls, _firebaseRef);
+    debugger
+    syncPolls(_polls, _db.ref("/polls"));
+    syncClicks(_clicks, _db.ref("/clicks"));
+    //wrapLocalCrudOps(_polls, _firebaseRef);
   },
   // debugger
   // this.setState({
@@ -192,20 +199,50 @@ var PollStore = assign({}, EventEmitter.prototype, {
     return _polls;
   },
 
-  tally: function(pollId, choiceId) {
+  tally: function(pollId, choiceId, uid) {
     debugger
-    var poll = assign({}, _polls[positionFor(_polls, pollId)]);
-    poll.choices[choiceId].count++;
-    _polls.$set(pollId, poll);
-  },
+    _db.ref('/clicks/' + pollId + '/' + choiceId).push({
+      date: firebase.database.ServerValue.TIMESTAMP,
+      uid: uid || null
+    });
+    _db.ref("/polls/" + pollId).transaction(function(poll){
+      debugger
+      poll.choices[choiceId].clickCount++; // per choice
+      poll.clickCount++; // total
+      return poll;
+    })
 
+  },
+  createChoice: function(choice){
+    debugger
+    _choicesRef.push({
+      pollId: choice.pollId,
+      text: choice.text,
+      clickCount: 0
+    })
+  },
   add: function(inputPoll){
     debugger
-    _polls.$add(inputPoll);
+    const newPollKey = _db.ref("/polls").push({
+      text: inputPoll.text,
+      clickCount: 0
+    }).key;
+    debugger
+    inputPoll.choices.forEach(function(choice){
+      _db.ref("/polls/" + newPollKey + "/choices").push({
+        text: choice.text,
+        clickCount: 0
+      });
+    });
   },
   remove: function(pollId){
     debugger
-    _polls.$remove(pollId);
+    _db.ref("/polls/" + pollId).remove().then(function(){
+      debugger
+      _db.ref("/clicks/" + pollId).remove();
+    }, function(err){
+      throw err;
+    });
   },
   emitChange: function() {
     this.emit(CHANGE_EVENT); // who's listening ?
@@ -226,44 +263,5 @@ var PollStore = assign({}, EventEmitter.prototype, {
   }
 });
 
-// Register callback to handle all updates
-// AppDispatcher.register(function(action) {
-//   var text;
-
-//   switch (action.type) {
-
-// case ActionTypes.RECEIVE_RAW_POLLS:
-//   _addPolls(action.rawPolls);
-//   //ChatAppDispatcher.waitFor([ThreadStore.dispatchToken]);
-//   //_markAllInThreadRead(ThreadStore.getCurrentID());
-//   PollStore.emitChange();
-//   break;
-
-// case ActionTypes.TALLY_POLL:
-//   debugger
-//   _polls[action.pollId].choices[action.choiceId].count++;
-//   PollStore.emitChange();
-//   break;
-
-// case ActionTypes.CREATE_POLL:
-//   debugger
-//   create(action.pollInput);
-//   PollStore.emitChange();
-//   break;
-
-// case TodoConstants.POLL_DESTROY:
-//   destroy(action.id);
-//   TodoStore.emitChange();
-//   break;
-
-// case TodoConstants.POLL_DESTROY_COMPLETED:
-//   destroyCompleted();
-//   TodoStore.emitChange();
-//   break;
-
-//     default:
-//       console.log("action not handled");
-//   }
-// });
 
 module.exports = PollStore;
