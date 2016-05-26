@@ -213,14 +213,6 @@ const PollStore = assign({}, EventEmitter.prototype, {
     })
 
   },
-  createChoice: function(choice){
-    debugger
-    _choicesRef.push({
-      pollId: choice.pollId,
-      text: choice.text,
-      clickCount: 0
-    })
-  },
   add: function(inputPoll){
     debugger
     const newPollKey = _db.ref("/polls").push({

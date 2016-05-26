@@ -43,19 +43,28 @@ var Poll = React.createClass({
 			/>
 		);
 
-		return <li>
-			<div>{poll.text} - total {total}</div>
+		return <div className="mdl-cell">
+		<div className="mdl-card mdl-shadow--4dp">
+			<div className="mdl-card__title">
+				<div className="mdl-card__title-text">
+					{poll.text} -- total {total}
+				</div>
+			</div>
 			<ol onChange={this._onChange}>
 				{choices}
 			</ol>
-			<button
+			<button 
+				className="mdl-button"
 				disabled={!this.state.choiceId}
 				onClick={this._onTally}	>Tally
 			</button>
-			<button onClick={this._onDelete}>
+			<button
+				className="mdl-button"
+				onClick={this._onDelete}>
 			  Delete
 			</button>
-		</li>
+		</div>
+		</div>
 	},
 	_onTally: function(event) {
 		debugger

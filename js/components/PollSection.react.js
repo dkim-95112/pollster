@@ -56,7 +56,7 @@ var PollSection = React.createClass({
 
 		return <div>
 			< PollInput fnAdd={this.fnAdd} />
-			<ul>{polls}</ul>
+			<div>{polls}</div>
 		</div>
 	}
 })
